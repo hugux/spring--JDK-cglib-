@@ -1,0 +1,122 @@
+Spring学习：
+	spring	IOC
+	spring	AOP
+	Spring 	TX
+-----------------------------------------------
+Spring IOC：统一管理对象，解耦。
+	Spring整合mybatis
+Spring Aop：扩展
+	AOP的相关概念
+		问题一：
+			在保留当前功能进行升级，也就是功能扩充的时候。我们必须去修改源码，添加新的功能代码。
+			但是有的时候我们是获取不到源码信息的，必须使用的是不开源的框架功能。除非自己从头进行重新编码。
+			但是工作量太大。
+		问题二：
+			举个栗子：
+			因为问题A依赖问题B，造成在写功能方法的时候需要将A和B的代码都要写，造成
+			功能方法的职责不明确。
+		解决：
+			使用SpringAOP
+		概念：
+			AOP：面向切面的编程。
+			切面：前置通知+切点+后置通知
+			切点:要被扩展的原始方法称为切点
+			前置通知:切点之前指执行的
+			后置通知：切点之后执行的
+			织入:形成切面的过程
+	AOP使用
+		Schema-based方式
+			前置通知
+				创建一个实现了MethodBeforeAdvice接口的类
+				配置前置通知bean
+				配置切面
+					使用标签aop:config
+							aop:poincut 用来配置切点
+								expression="execution(* com.bjsxt.demo.Demo.demo1())" 声明切点
+								id="mypoint" 切点的标识符
+							aop:advisor 用来配置通知
+								 advice-ref:引入通知bean
+								 pointcut-ref：引入切点
+				正常调用
+			后置通知
+				创建一个实现了AfterReturningAdvice接口的类
+				配置后置通知
+					aop:advisor 用来配置通知
+								 advice-ref:引入通知bean
+								 pointcut-ref：引入切点
+			异常通知
+				创建一个实现了ThrowsAdvice接口的类
+				需要硬写实现方法：afterThrowing
+				配置异常通知bean
+				配置切面
+					aop:advisor 用来配置通知
+								 advice-ref:引入通知bean
+								 pointcut-ref：引入切点
+				注意:
+					异常通知只有在切点执行出现异常的时候才会被触发执行
+					不能再切点中使用try catch进行异常捕捉，只能抛出，否则异常通知会失效
+			环绕通知
+				创建一个实现了MethodInterceptor接口的类
+				配置环绕通知bean
+				配置切面
+					aop:advisor 用来配置通知
+								 advice-ref:引入通知bean
+								 pointcut-ref：引入切点
+				注意：
+					需要使用环绕通知的参数对切点进行放行
+					执行顺序和配置顺序有关
+			通配符*的使用
+				..代表的是参数任意。
+				*代表任意方法名，类名，包名。
+			通知中的参数的含义：
+				前置通知
+					 Method arg0, 表示切点的方法对象
+					 Object[] arg1, 表示切点所接受的实参数组
+					 Object arg2,表示切点所隶属的对象
+				后置通知
+					 Object arg0,表示的切点执行的返回值
+					 Method arg1,表示切点的方法对象
+					 Object[] arg2,表示切点所接受的实参数组
+					 Object arg3表示切点所隶属的对象		
+		AspectJ方式
+			声明普通java类
+				在类中创建四个通知方法
+					前置
+					后置
+					异常
+					环绕
+			配置通知bean
+			配置切面
+				aop:config
+					aop:aspect ref="通知bean的id"
+						aop:pointcut
+						aop:before
+						aop:after-returning
+						aop:after
+						aop:after-throwing
+						aop:around
+					注意：
+						aop:after-returning切点报错不执行。
+						aop:after：切点报错也继续执行
+					注意2：AspectJ获取切点参数(了解)
+						在切点表达式上声明参数类型和参数名
+						在通知配置中使用args-names属性配置参数名
+	AOP的原理	
+		代理设计模式
+			静态代理模式
+				真实对象：要被扩展功能的对象
+				代理对象：调用真实对象，并对真实对象进行功能扩展的对象
+				接口：真实对象和代理对象共同实现的接口。
+				特点：
+					真实对象和代理对象必须实现相同的接口。
+				缺点：
+					真实对象有的，代理对象也都要有。
+					代理对象由程序员自己编写。
+			动态代理模式：代理对象是动态生成的。
+				JDK动态代理：基于接口的。代理对象和真实对象必须实现相同的接口
+					原理：使用反射
+					效率：低
+				cglib动态代理：基于继承的。
+					原理：基于字节码
+					效率：高
+					使用：导包
